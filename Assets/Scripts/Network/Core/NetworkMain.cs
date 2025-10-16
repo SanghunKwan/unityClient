@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class NetworkMain : TSingleton<NetworkMain>
 {
-    const int _serverPort = 789;
+    const int _serverPort = 666;
     const string _serverIP = "127.0.0.1";
 
     Socket _serverSocket;
@@ -22,9 +22,6 @@ public class NetworkMain : TSingleton<NetworkMain>
         _sendQueue = new Queue<Packet>();
         _receiveQueue = new Queue<Packet>();
         _isQuit = false;
-
-        StartCoroutine(SendLoop());
-        StartCoroutine(ReceiveLoop());
     }
 
     private void Update()
@@ -40,9 +37,13 @@ public class NetworkMain : TSingleton<NetworkMain>
 
                 _receiveQueue.Enqueue(pack);
             }
-
         }
+    }
 
+    public void NetStart()
+    {
+        StartCoroutine(SendLoop());
+        StartCoroutine(ReceiveLoop());
     }
 
     public void Connect()
@@ -81,7 +82,7 @@ public class NetworkMain : TSingleton<NetworkMain>
             {
                 Packet pack = _receiveQueue.Dequeue();
 
-                switch((CProtocol.Receive)pack._protocol)
+                switch ((CProtocol.Receive)pack._protocol)
                 {
                     case CProtocol.Receive:
 
@@ -94,4 +95,9 @@ public class NetworkMain : TSingleton<NetworkMain>
         }
     }
     #endregion [ÄÚ·çÆ¾]
+
+    public void SendQueueIn(Packet packet)
+    {
+        _sendQueue.Enqueue(packet);
+    }
 }

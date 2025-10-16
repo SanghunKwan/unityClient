@@ -2,15 +2,33 @@ using UnityEngine;
 
 public class TitleManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    static TitleManager _uniqueInstance;
+
+    UILoginWnd _uiLoginWnd;
+
+
+    public static TitleManager _instance => _uniqueInstance;
+
+    private void Awake()
     {
-        
+        _uniqueInstance = this;
     }
 
-    // Update is called once per frame
-    void Update()
+    //юс╫ц
+    private void Start()
     {
-        
+        InitTitle();
     }
+    //==
+
+    public void InitTitle()
+    {
+        string path = "Prefabs/";
+        GameObject _uiPrefab = Resources.Load<GameObject>(path + "LoginWindow");
+
+        GameObject go = Instantiate(_uiPrefab);
+        _uiLoginWnd = go.GetComponent<UILoginWnd>();
+        _uiLoginWnd.OpenWnd();
+    }
+
 }

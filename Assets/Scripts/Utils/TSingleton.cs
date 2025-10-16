@@ -24,7 +24,7 @@ public class TSingleton<T> : MonoBehaviour where T : TSingleton<T>
                 {
                     if (_uniqueInstance == null && _uniqueObject == null)
                         _uniqueObject = new GameObject(typeof(T).Name, typeof(T));
-                    _uniqueInstance = _uniqueInstance.GetComponent<T>();
+                    _uniqueInstance = _uniqueObject.GetComponent<T>();
                     _uniqueInstance.Init();
                 }
             }
