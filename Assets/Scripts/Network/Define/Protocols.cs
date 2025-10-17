@@ -58,8 +58,8 @@ namespace NetworkDefine
             Login_Success,
             Login_Failed,
 
-            Duplication_true,
-            Duplication_false,
+            Duplication_True,
+            Duplication_False,
         }
     }
     #endregion [Client프로토콜]

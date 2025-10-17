@@ -10,7 +10,8 @@ public class NetworkMain : TSingleton<NetworkMain>
     const int _serverPort = 666;
     const string _serverIP = "127.0.0.1";
 
-    Socket _serverSocket;
+    TcpClient _serverTcp;
+    //Socket _serverSocket;
     Queue<Packet> _sendQueue;
     Queue<Packet> _receiveQueue;
 
@@ -26,17 +27,30 @@ public class NetworkMain : TSingleton<NetworkMain>
 
     private void Update()
     {
-        if (_serverSocket != null && _serverSocket.Poll(0, SelectMode.SelectRead))
+        //if (_serverSocket != null && _serverSocket.Poll(0, SelectMode.SelectRead))
+        if (_serverTcp != null && _serverTcp.Connected)
         {
+            NetworkStream stream = _serverTcp.GetStream();
+            int receiveLength;
             byte[] buffer = new byte[1024];
-            int receiveLength = _serverSocket.Receive(buffer);
 
-            if (receiveLength > 0)
+            if (stream != null && stream.DataAvailable && (receiveLength = stream.Read(buffer, 0, buffer.Length)) > 0)
             {
                 Packet pack = (Packet)ConverterPack.ByteArrayToStructure(buffer, typeof(Packet), receiveLength);
 
                 _receiveQueue.Enqueue(pack);
             }
+
+
+            //int receivelength = _serverTcp.Client.Receive(buffer);
+            ////int receivelength = _serverSocket.Receive(buffer);
+            //if (receivelength > 0)
+            //{
+            //    Packet pack = (Packet)ConverterPack.ByteArrayToStructure(buffer, typeof(Packet), receivelength);
+
+            //    _receiveQueue.Enqueue(pack);
+            //}
+
         }
     }
 
@@ -44,14 +58,20 @@ public class NetworkMain : TSingleton<NetworkMain>
     {
         StartCoroutine(SendLoop());
         StartCoroutine(ReceiveLoop());
+        //StartCoroutine(ReceiveLoopTcpClient());
     }
 
     public void Connect()
     {
         try
         {
-            _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _serverSocket.Connect(_serverIP, _serverPort);
+            //_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //_serverSocket.Connect(_serverIP, _serverPort);
+            IPEndPoint clientAddr = new IPEndPoint(IPAddress.Parse(_serverIP), 999);
+            IPEndPoint serverAddr = new IPEndPoint(IPAddress.Parse(_serverIP), _serverPort);
+
+            _serverTcp = new TcpClient(clientAddr);
+            _serverTcp.Connect(serverAddr);
         }
         catch (System.Exception ex)
         {
@@ -69,7 +89,8 @@ public class NetworkMain : TSingleton<NetworkMain>
                 Packet pack = _sendQueue.Dequeue();
                 byte[] data = ConverterPack.StructureToByteArray(pack);
 
-                _serverSocket.Send(data);
+                _serverTcp.Client.Send(data);
+                //_serverSocket.Send(data);
             }
             yield return null;
         }
@@ -84,10 +105,34 @@ public class NetworkMain : TSingleton<NetworkMain>
 
                 switch ((CProtocol.Receive)pack._protocol)
                 {
-                    case CProtocol.Receive:
-
+                    case CProtocol.Receive.Duplication_True:
+                        Debug.Log("이미 존재하는 아이디");
                         break;
+                    case CProtocol.Receive.Duplication_False:
+                        Debug.Log("사용 가능한 아이디");
+                        break;
+                }
 
+            }
+            yield return null;
+        }
+    }
+    IEnumerator ReceiveLoopTcpClient()
+    {
+        while (!_isQuit)
+        {
+            if (_serverTcp != null && _serverTcp.Connected)
+            {
+                byte[] buffer = new byte[1024];
+
+                int receivelength = _serverTcp.Client.Receive(buffer);
+                Debug.Log("리시브");
+                //int receivelength = _serverSocket.Receive(buffer);
+                if (receivelength > 0)
+                {
+                    Packet pack = (Packet)ConverterPack.ByteArrayToStructure(buffer, typeof(Packet), receivelength);
+
+                    _receiveQueue.Enqueue(pack);
                 }
 
             }
