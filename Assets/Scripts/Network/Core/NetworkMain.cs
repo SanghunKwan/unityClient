@@ -105,11 +105,26 @@ public class NetworkMain : TSingleton<NetworkMain>
 
                 switch ((CProtocol.Receive)pack._protocol)
                 {
+                    case CProtocol.Receive.Connect_Success:
+                        Debug.Log("연결 성공");
+                        break;
+                    case CProtocol.Receive.Join_Success:
+                        Debug.Log("가입 성공");
+                        break;
+                    case CProtocol.Receive.Join_Failed:
+                        Debug.Log("가입 실패");
+                        break;
+                    case CProtocol.Receive.Login_Success:
+                        TitleManager._instance.LoginSuccess();
+                        break;
+                    case CProtocol.Receive.Login_Failed:
+                        Debug.Log("로그인 실패");
+                        break;
                     case CProtocol.Receive.Duplication_True:
-                        Debug.Log("이미 존재하는 아이디");
+                        TitleManager._instance.OnDuplicationCheck(false);
                         break;
                     case CProtocol.Receive.Duplication_False:
-                        Debug.Log("사용 가능한 아이디");
+                        TitleManager._instance.OnDuplicationCheck(true);
                         break;
                 }
 

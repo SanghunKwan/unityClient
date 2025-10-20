@@ -16,18 +16,19 @@ namespace NetworkDefine
     [StructLayout(LayoutKind.Sequential)]
     public struct Packet_UserData
     {
-        [MarshalAs(UnmanagedType.U8)]
-        public ulong _uuid;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
         public string _id;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
         public string _pw;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
         public string _name;
-        [MarshalAs(UnmanagedType.U4)]
-        public uint _clearStage;
-        [MarshalAs(UnmanagedType.U8)]
-        public ulong _gold;
+    }
+    public struct Packet_Login
+    {
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
+        public string _id;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
+        public string _pw;
     }
     [StructLayout(LayoutKind.Sequential)]
     public struct Packet_DuplicationId
